@@ -123,9 +123,9 @@ namespace csDrafter
             }
             foreach (int skillTotal in allTeamsSkills)
             {
-                GetFairness -= Math.Abs(1 - (skillTotal / averageRank)) * 100;
+                GetFairness -= Math.Abs(1 - (skillTotal / averageRank));
             } 
-           return GetFairness;
+            return GetFairness;
         }
         public int TeamSkill(int i)
         {
