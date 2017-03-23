@@ -106,69 +106,32 @@ namespace csDrafter
                 {
                     if (isPromisingTeam(i))
                     {
+                        //Assign player to team
                         Players[i].isDrafted = true;
                         FinalTeam.Add(Players[i]);
+
+                        //Draft next available
                         Draft(lowestAvail());
 
+                        //Drafting is complete
                         if (FinalTeam.Count == Players.Count)
                         {
                             PrintTeams();
                         }
 
+                        //Keep back tracking to get all possible combinations draft next
                         Players[i].isDrafted = false;
                         FinalTeam.Remove(FinalTeam[FinalTeam.Count - 1]);
-                        Draft(i + 1);
+                    }
 
-                    }
-                    else
-                    {
-                        //next avail
-                        Draft(i + 1);
-                    }
+                    Draft(i + 1);
+                    //}
+                    //else
+                    //{
+                    //    //Player did not fit on team draft next player
+                    //    Draft(i + 1);
+                    //}
                 }
-                //    if (i < 0)
-                //{
-
-                //}
-                //else if (i >= Players.Count)
-                //{
-
-                //}
-                //else
-                //{
-                //    if (!Players[i].isDrafted)
-                //    {
-                //        if (isPromisingTeam(i))
-                //        {
-                //            Players[i].isDrafted = true;
-                //            FinalTeam.Add(Players[i]);
-                //            Draft(lowestAvail());
-
-                //            if (FinalTeam.Count == Players.Count)
-                //            {
-                //                PrintTeams();
-                //                completeTeams++;
-                //                Console.WriteLine("Completed: " + completeTeams);
-
-                //            }
-                        
-                //            Players[i].isDrafted = false;
-                //            FinalTeam.Remove(FinalTeam[FinalTeam.Count - 1]);
-                //            Draft(i + 1);
-
-                //        }
-                //        else
-                //        {
-                //            //next avail
-                //            Draft(i + 1);
-                //        }
-                //    }
-                //    else
-                //    {
-                //        Draft(i + 1);
-                //    }
-
-                //}
             }
             catch (Exception ex)
             {
@@ -242,10 +205,9 @@ namespace csDrafter
         public void PrintTeams()
         {
             completeTeams++;
-           
+            int teamCount = 1;
             for (int i = 0; i < FinalTeam.Count; i++)
             {
-                int teamCount = 1;
                 if ((i % playersPerTeam) == 0)
                 {
                     Console.WriteLine();
