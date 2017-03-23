@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "csDrafter", "csDrafter\csDrafter.csproj", "{DD86FAF3-792D-462F-A7AD-E0D1758B6B48}"
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Teamer", "..\..\drafter\Teamer\Teamer\Teamer.vbproj", "{471E86E4-3E87-4C12-B54F-953A35DBFA82}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Teamer", "..\..\..\Desktop\Teamer\Teamer\Teamer.vbproj", "{471E86E4-3E87-4C12-B54F-953A35DBFA82}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

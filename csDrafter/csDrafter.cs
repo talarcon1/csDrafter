@@ -12,6 +12,15 @@ namespace csDrafter
         {
             List<Player> p = TestTeam();
             Drafter d = new Drafter(p, 4);
+            bool proceed = true;
+            while (proceed)
+            {
+                d.Draft(0);
+                d.ResetDraftedPlayers();
+                d.FinalTeam = new List<Player>();
+                d.deviation++;
+            }
+           
             
         }
         static List<Player> TestTeam()
@@ -29,6 +38,10 @@ namespace csDrafter
             TestTeam.Add(new Player("Josh", 88));
             TestTeam.Add(new Player("Sam", 91));
             TestTeam.Add(new Player("Zues", 84));
+            //TestTeam.Add(new Player("Tim", 88));
+            //TestTeam.Add(new Player("Josh", 88));
+            //TestTeam.Add(new Player("Sam",88));
+            //TestTeam.Add(new Player("Zues", 88));
             return TestTeam;
         }
     }
@@ -44,6 +57,7 @@ namespace csDrafter
         public List<Player> FinalTeam { get; set; }
         public int playersPerTeam { get; set; }
         public int iteration { get; set; }
+        public int completeTeams { get; set; }
         #endregion
         public Drafter(List<Player> playerList, int anyNumTeams)
         {
@@ -52,9 +66,12 @@ namespace csDrafter
             numTeams = anyNumTeams;
             playersPerTeam = Players.Count / anyNumTeams;
             averageRank = GetTotalPlayersSkill(Players) / numTeams;
+            FinalTeam = new List<Player>();
+            completeTeams = 0;
         }
 
         #region Public Methods
+
         public List<Player> OrderFinalList(List<Player> playerList)
         {
             Dictionary<int,List<Player>> orderedList = new Dictionary<int,List<Player>>();  //playerList;   
@@ -79,6 +96,85 @@ namespace csDrafter
             playerList.OrderBy<Player.>
             return orderedList; 
         }
+
+        public void Draft(int i)
+        {
+            iteration++;
+            try
+            {
+                if (i < 0)
+                {
+
+                }
+                else if (i >= Players.Count)
+                {
+
+                }
+                else
+                {
+                    if (!Players[i].isDrafted)
+                    {
+                        if (isPromisingTeam(i))
+                        {
+                            Players[i].isDrafted = true;
+                            FinalTeam.Add(Players[i]);
+                            Draft(lowestAvail());
+
+                            if (FinalTeam.Count == Players.Count)
+                            {
+                                PrintTeams();
+                                completeTeams++;
+                                Console.WriteLine("Completed: " + completeTeams);
+
+                            }
+                        
+                            Players[i].isDrafted = false;
+                            FinalTeam.Remove(FinalTeam[FinalTeam.Count - 1]);
+                            Draft(i + 1);
+
+                        }
+                        else
+                        {
+                            //next avail
+                            Draft(i + 1);
+                        }
+                    }
+                    else
+                    {
+                        Draft(i + 1);
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+           
+        }
+
+        public bool isPromisingTeam(int i)
+        {
+            bool promising = false;
+            try
+            {
+                 int teamSkill = TeamSkill(i);
+                if ((FinalTeam.Count + 1) % playersPerTeam == 0)
+                 {
+                     promising = teamSkill >= (averageRank - deviation) && teamSkill <= (averageRank + deviation);
+                 }
+                else
+                {
+                    promising = teamSkill <= (averageRank - deviation);
+                }
+            }catch(Exception ex){
+
+            }
+ 
+            return promising;
+        }
+
+
         public int GetTotalPlayersSkill(List<Player> playerList)
         {
             int totalSkill = 0;
@@ -102,7 +198,7 @@ namespace csDrafter
             int lowestAvail = -1;
             for (int x = 0; x < Players.Count; x++)
             {
-                if (Players[x].isDrafted)
+                if (!Players[x].isDrafted)
                 {
                     lowestAvail = x;
                     break;
@@ -158,7 +254,7 @@ namespace csDrafter
             try
             {
                 //minus 1 because current player is already accounted for 
-                int goBack = (FinalTeam.Count - 1) % playersPerTeam;
+                int goBack = (FinalTeam.Count) % playersPerTeam;
      
                 //Why do we need this
                 //if (goBack < 0) //Player is first
