@@ -11,7 +11,7 @@ namespace csDrafter
         static void Main(string[] args)
         {
             List<Player> p = TestTeam();
-            Drafter d = new Drafter(p, 4);
+            Drafter d = new Drafter(p, 2);
             bool proceed = true;
             while (proceed)
             {
@@ -26,22 +26,22 @@ namespace csDrafter
         static List<Player> TestTeam()
         {
             List<Player> TestTeam = new List<Player>();
-            TestTeam.Add(new Player("Ric", 67));
-            TestTeam.Add(new Player("Tico", 72));
-            TestTeam.Add(new Player("Jr", 74));
-            TestTeam.Add(new Player("Fur", 77));
-            TestTeam.Add(new Player("Jamie", 86));
-            TestTeam.Add(new Player("Danny", 76));
-            TestTeam.Add(new Player("Gab", 79));
-            TestTeam.Add(new Player("X", 86));
-            TestTeam.Add(new Player("Tim", 87));
-            TestTeam.Add(new Player("Josh", 88));
-            TestTeam.Add(new Player("Sam", 91));
-            TestTeam.Add(new Player("Zues", 84));
-            //TestTeam.Add(new Player("Tim", 88));
+            //TestTeam.Add(new Player("Ric", 67));
+            //TestTeam.Add(new Player("Tico", 72));
+            //TestTeam.Add(new Player("Jr", 74));
+            //TestTeam.Add(new Player("Fur", 77));
+            //TestTeam.Add(new Player("Jamie", 86));
+            //TestTeam.Add(new Player("Danny", 76));
+            //TestTeam.Add(new Player("Gab", 79));
+            //TestTeam.Add(new Player("X", 86));
+            //TestTeam.Add(new Player("Tim", 87));
             //TestTeam.Add(new Player("Josh", 88));
-            //TestTeam.Add(new Player("Sam",88));
-            //TestTeam.Add(new Player("Zues", 88));
+            //TestTeam.Add(new Player("Sam", 91));
+            //TestTeam.Add(new Player("Zues", 84));
+            TestTeam.Add(new Player("Tim", 88));
+            TestTeam.Add(new Player("Josh", 88));
+            TestTeam.Add(new Player("Sam", 88));
+            TestTeam.Add(new Player("Zues", 88));
             return TestTeam;
         }
     }
@@ -93,7 +93,7 @@ namespace csDrafter
         public List<Player> orderList(List<Player> playerList)
         {
             List<Player> orderedList = playerList;
-            playerList.OrderBy<Player.>
+           // playerList.OrderBy<Player.>
             return orderedList; 
         }
 
@@ -102,49 +102,73 @@ namespace csDrafter
             iteration++;
             try
             {
-                if (i < 0)
+                if (i >= 0 && i < Players.Count)
                 {
-
-                }
-                else if (i >= Players.Count)
-                {
-
-                }
-                else
-                {
-                    if (!Players[i].isDrafted)
+                    if (isPromisingTeam(i))
                     {
-                        if (isPromisingTeam(i))
+                        Players[i].isDrafted = true;
+                        FinalTeam.Add(Players[i]);
+                        Draft(lowestAvail());
+
+                        if (FinalTeam.Count == Players.Count)
                         {
-                            Players[i].isDrafted = true;
-                            FinalTeam.Add(Players[i]);
-                            Draft(lowestAvail());
-
-                            if (FinalTeam.Count == Players.Count)
-                            {
-                                PrintTeams();
-                                completeTeams++;
-                                Console.WriteLine("Completed: " + completeTeams);
-
-                            }
-                        
-                            Players[i].isDrafted = false;
-                            FinalTeam.Remove(FinalTeam[FinalTeam.Count - 1]);
-                            Draft(i + 1);
-
+                            PrintTeams();
                         }
-                        else
-                        {
-                            //next avail
-                            Draft(i + 1);
-                        }
+
+                        Players[i].isDrafted = false;
+                        FinalTeam.Remove(FinalTeam[FinalTeam.Count - 1]);
+                        Draft(i + 1);
+
                     }
                     else
                     {
+                        //next avail
                         Draft(i + 1);
                     }
-
                 }
+                //    if (i < 0)
+                //{
+
+                //}
+                //else if (i >= Players.Count)
+                //{
+
+                //}
+                //else
+                //{
+                //    if (!Players[i].isDrafted)
+                //    {
+                //        if (isPromisingTeam(i))
+                //        {
+                //            Players[i].isDrafted = true;
+                //            FinalTeam.Add(Players[i]);
+                //            Draft(lowestAvail());
+
+                //            if (FinalTeam.Count == Players.Count)
+                //            {
+                //                PrintTeams();
+                //                completeTeams++;
+                //                Console.WriteLine("Completed: " + completeTeams);
+
+                //            }
+                        
+                //            Players[i].isDrafted = false;
+                //            FinalTeam.Remove(FinalTeam[FinalTeam.Count - 1]);
+                //            Draft(i + 1);
+
+                //        }
+                //        else
+                //        {
+                //            //next avail
+                //            Draft(i + 1);
+                //        }
+                //    }
+                //    else
+                //    {
+                //        Draft(i + 1);
+                //    }
+
+                //}
             }
             catch (Exception ex)
             {
@@ -158,16 +182,24 @@ namespace csDrafter
             bool promising = false;
             try
             {
-                 int teamSkill = TeamSkill(i);
-                if ((FinalTeam.Count + 1) % playersPerTeam == 0)
-                 {
-                     promising = teamSkill >= (averageRank - deviation) && teamSkill <= (averageRank + deviation);
-                 }
-                else
-                {
-                    promising = teamSkill <= (averageRank - deviation);
-                }
-            }catch(Exception ex){
+                //when i is out of bounds, we skip, opposed to non promising we draft next
+                //if(i < 0 || i >= Players.Count)
+                //{
+                    if (!Players[i].isDrafted)
+                    {
+                        int teamSkill = TeamSkill(i);
+                        if ((FinalTeam.Count + 1) % playersPerTeam == 0)
+                        {
+                            promising = teamSkill >= (averageRank - deviation) && teamSkill <= (averageRank + deviation);
+                        }
+                        else
+                        {
+                            promising = teamSkill <= (averageRank - deviation);
+                        }
+                    }
+                //}
+            }
+            catch(Exception ex){
 
             }
  
@@ -209,7 +241,9 @@ namespace csDrafter
 
         public void PrintTeams()
         {
-            for(int i = 0; i < FinalTeam.Count; i++)
+            completeTeams++;
+           
+            for (int i = 0; i < FinalTeam.Count; i++)
             {
                 int teamCount = 1;
                 if ((i % playersPerTeam) == 0)
@@ -222,6 +256,7 @@ namespace csDrafter
                 }
                 Console.WriteLine(FinalTeam[i].name);
             }
+            Console.WriteLine("Team Set: " + completeTeams);
             //Console.WriteLine()
             //Console.WriteLine("Fairness: " & GetFairness(FinalTeam, PlayersPerTeam) & "%")
             //bPrintedTeams = True
