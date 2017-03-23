@@ -71,6 +71,32 @@ namespace csDrafter
         }
 
         #region Public Methods
+
+        public List<Player> OrderFinalList(List<Player> playerList)
+        {
+            Dictionary<int,List<Player>> orderedList = new Dictionary<int,List<Player>>();  //playerList;   
+
+            for (int x = 0; x < FinalTeam.Count; x++)
+            {
+                List<Player> subList = new List<Player>();
+                for (int y = 0; y < playersPerTeam; y++)
+                {
+                    subList.Add(playerList[x]);
+                    x++;
+                }
+                x--;
+
+               orderedList.Add(subList[0].skill,subList);
+            }
+            return playerList;
+        }
+        public List<Player> orderList(List<Player> playerList)
+        {
+            List<Player> orderedList = playerList;
+            playerList.OrderBy<Player.>
+            return orderedList; 
+        }
+
         public void Draft(int i)
         {
             iteration++;
@@ -147,6 +173,7 @@ namespace csDrafter
  
             return promising;
         }
+
 
         public int GetTotalPlayersSkill(List<Player> playerList)
         {
