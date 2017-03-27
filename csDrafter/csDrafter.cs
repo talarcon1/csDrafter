@@ -11,7 +11,7 @@ namespace csDrafter
         static void Main(string[] args)
         {
             List<Player> p = TestTeam();
-            Drafter d = new Drafter(p, 2);
+            Drafter d = new Drafter(p, 4);
             bool proceed = true;
             while (proceed)
             {
@@ -20,28 +20,26 @@ namespace csDrafter
                 d.FinalTeam = new List<Player>();
                 d.deviation++;
             }
-           
-            
         }
         static List<Player> TestTeam()
         {
             List<Player> TestTeam = new List<Player>();
-            //TestTeam.Add(new Player("Ric", 67));
-            //TestTeam.Add(new Player("Tico", 72));
-            //TestTeam.Add(new Player("Jr", 74));
-            //TestTeam.Add(new Player("Fur", 77));
-            //TestTeam.Add(new Player("Jamie", 86));
-            //TestTeam.Add(new Player("Danny", 76));
-            //TestTeam.Add(new Player("Gab", 79));
-            //TestTeam.Add(new Player("X", 86));
-            //TestTeam.Add(new Player("Tim", 87));
-            //TestTeam.Add(new Player("Josh", 88));
-            //TestTeam.Add(new Player("Sam", 91));
-            //TestTeam.Add(new Player("Zues", 84));
-            TestTeam.Add(new Player("Tim", 88));
+            TestTeam.Add(new Player("Ric", 67));
+            TestTeam.Add(new Player("Tico", 72));
+            TestTeam.Add(new Player("Jr", 74));
+            TestTeam.Add(new Player("Fur", 77));
+            TestTeam.Add(new Player("Jamie", 86));
+            TestTeam.Add(new Player("Danny", 76));
+            TestTeam.Add(new Player("Gab", 79));
+            TestTeam.Add(new Player("X", 86));
+            TestTeam.Add(new Player("Tim", 87));
             TestTeam.Add(new Player("Josh", 88));
-            TestTeam.Add(new Player("Sam", 88));
-            TestTeam.Add(new Player("Zues", 88));
+            TestTeam.Add(new Player("Sam", 91));
+            TestTeam.Add(new Player("Zues", 84));
+            //TestTeam.Add(new Player("Tim", 88));
+            //TestTeam.Add(new Player("Josh", 88));
+            //TestTeam.Add(new Player("Sam", 88));
+            //TestTeam.Add(new Player("Zues", 88));
             return TestTeam;
         }
     }
@@ -75,20 +73,39 @@ namespace csDrafter
         public List<Player> OrderFinalList(List<Player> playerList)
         {
             Dictionary<int,List<Player>> orderedList = new Dictionary<int,List<Player>>();  //playerList;   
-
-            for (int x = 0; x < FinalTeam.Count; x++)
+            List<Player> subList = new List<Player>();
+            if (playerList.Count > playersPerTeam)
             {
-                List<Player> subList = new List<Player>();
-                for (int y = 0; y < playersPerTeam; y++)
+                for (int x = 0; x < FinalTeam.Count; x++)
                 {
-                    subList.Add(playerList[x]);
-                    x++;
+                    List<Player> subList = new List<Player>();
+                    for (int y = 0; y < playersPerTeam; y++)
+                    {
+                        subList.Add(playerList[x]);
+                        x++;
+                    }
+                    x--;
+                    orderedList.Add(subList[0].skill, subList);
                 }
-                x--;
-
-               orderedList.Add(subList[0].skill,subList);
             }
-            return playerList;
+
+            SortedDictionary<int, List<Player>> sortedDict = new SortedDictionary<int, List<Player>>();
+       
+            playerList = playerList.OrderBy(x => x.skill).ThenBy(x => x.name).ToList<Player>();
+            sortedDict.Add(playerList[0].skill, playerList);
+
+
+            List<Player> finalList = new List<Player>();
+            foreach(List<Player> sortedSubList in sortedDict.Values)
+            {
+                foreach(Player player in sortedSubList)
+                {
+                    finalList.Add(player);
+                }
+            }
+            
+           
+            return finalList;
         }
         public List<Player> orderList(List<Player> playerList)
         {
@@ -102,6 +119,7 @@ namespace csDrafter
             iteration++;
             try
             {
+                //i will be -1 when no available players are left, i will be >= count if fair team is impossible
                 if (i >= 0 && i < Players.Count)
                 {
                     if (isPromisingTeam(i))
@@ -113,7 +131,7 @@ namespace csDrafter
                         //Draft next available
                         Draft(lowestAvail());
 
-                        //Drafting is complete
+                        //Drafting is complete 
                         if (FinalTeam.Count == Players.Count)
                         {
                             PrintTeams();
@@ -124,13 +142,8 @@ namespace csDrafter
                         FinalTeam.Remove(FinalTeam[FinalTeam.Count - 1]);
                     }
 
+                    //Player did not fit on team or we back tracked, draft next player 
                     Draft(i + 1);
-                    //}
-                    //else
-                    //{
-                    //    //Player did not fit on team draft next player
-                    //    Draft(i + 1);
-                    //}
                 }
             }
             catch (Exception ex)
