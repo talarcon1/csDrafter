@@ -12,6 +12,9 @@ namespace csDrafter
         {
             List<Player> p = TestTeam();
             Drafter d = new Drafter(p, 4);
+            //test ordering the list to remove dups
+
+
             bool proceed = true;
             while (proceed)
             {
@@ -19,23 +22,27 @@ namespace csDrafter
                 d.ResetDraftedPlayers();
                 d.FinalTeam = new List<Player>();
                 d.deviation++;
+                if(d.completeTeams > 20)
+                {
+                    proceed = false;
+                }
             }
         }
         static List<Player> TestTeam()
         {
             List<Player> TestTeam = new List<Player>();
-            TestTeam.Add(new Player("Ric", 67));
-            TestTeam.Add(new Player("Tico", 72));
-            TestTeam.Add(new Player("Jr", 74));
-            TestTeam.Add(new Player("Fur", 77));
-            TestTeam.Add(new Player("Jamie", 86));
-            TestTeam.Add(new Player("Danny", 76));
-            TestTeam.Add(new Player("Gab", 79));
-            TestTeam.Add(new Player("X", 86));
-            TestTeam.Add(new Player("Tim", 87));
-            TestTeam.Add(new Player("Josh", 88));
-            TestTeam.Add(new Player("Sam", 91));
-            TestTeam.Add(new Player("Zues", 84));
+            TestTeam.Add(new Player("Ric", 67, "a"));
+            TestTeam.Add(new Player("Tico", 72, "b"));
+            TestTeam.Add(new Player("Jr", 74, "c"));
+            TestTeam.Add(new Player("Fur", 77,"d"));
+            TestTeam.Add(new Player("Jamie", 86,"e"));
+            TestTeam.Add(new Player("Danny", 76,"f"));
+            TestTeam.Add(new Player("Gab", 79,"g"));
+            TestTeam.Add(new Player("X", 86,"h"));
+            TestTeam.Add(new Player("Tim", 87,"i"));
+            TestTeam.Add(new Player("Josh", 88,"j"));
+            TestTeam.Add(new Player("Sam", 91,"k"));
+            TestTeam.Add(new Player("Zues", 84,"l"));
             //TestTeam.Add(new Player("Tim", 88));
             //TestTeam.Add(new Player("Josh", 88));
             //TestTeam.Add(new Player("Sam", 88));
@@ -56,6 +63,8 @@ namespace csDrafter
         public int playersPerTeam { get; set; }
         public int iteration { get; set; }
         public int completeTeams { get; set; }
+
+        public List<String> TeamIds { get; set; }
         #endregion
         public Drafter(List<Player> playerList, int anyNumTeams)
         {
@@ -66,17 +75,26 @@ namespace csDrafter
             averageRank = GetTotalPlayersSkill(Players) / numTeams;
             FinalTeam = new List<Player>();
             completeTeams = 0;
+            TeamIds = new List<String>();
         }
 
         #region Public Methods
 
-        public List<Player> OrderFinalList(List<Player> playerList)
+        public string GetTotalTeamId(List<Player> playerList)
+        //public Dictionary<string, List<Player>> OrderFinalList(List<Player> playerList)
         {
-            Dictionary<int,List<Player>> orderedList = new Dictionary<int,List<Player>>();  //playerList;   
-            List<Player> subList = new List<Player>();
+            try
+            {
+
+           
+
+            List<List<Player>> teamList = new List<List<Player>>();
+
+            
+           //Create sublists for each team
             if (playerList.Count > playersPerTeam)
             {
-                for (int x = 0; x < FinalTeam.Count; x++)
+                for (int x = 0; x < playerList.Count; x++)
                 {
                     List<Player> subList = new List<Player>();
                     for (int y = 0; y < playersPerTeam; y++)
@@ -85,27 +103,68 @@ namespace csDrafter
                         x++;
                     }
                     x--;
-                    orderedList.Add(subList[0].skill, subList);
+                   teamList.Add(subList);
                 }
             }
 
-            SortedDictionary<int, List<Player>> sortedDict = new SortedDictionary<int, List<Player>>();
-       
-            playerList = playerList.OrderBy(x => x.skill).ThenBy(x => x.name).ToList<Player>();
-            sortedDict.Add(playerList[0].skill, playerList);
-
-
-            List<Player> finalList = new List<Player>();
-            foreach(List<Player> sortedSubList in sortedDict.Values)
+            //order each player in each team by their id
+            Dictionary<string, List<Player>> orderedList = new Dictionary<string, List<Player>>();  //playerList;  
+            foreach (List<Player> rawTeam in teamList)
             {
-                foreach(Player player in sortedSubList)
+                List<Player> orderedTeam = new List<Player>();
+                orderedTeam = rawTeam.OrderBy(x => x.id).ToList<Player>();//x.skill).ThenBy(x => x.name).ToList<Player>();
+
+                //get total team id
+                string teamId = "";
+                foreach (Player player in orderedTeam)
                 {
-                    finalList.Add(player);
+                    teamId += player.id;
                 }
+                orderedList.Add(teamId, orderedTeam);
             }
-            
-           
-            return finalList;
+
+            //Get the total team ids and order them 
+            List<string> keyList = new List<string>();
+            foreach (string teamId in orderedList.Keys)
+            {
+                keyList.Add(teamId);
+            }
+            keyList = keyList.OrderBy(x => x).ToList<String>();
+
+            //Order the teams by their team id
+            //This step is unnecessary but it does order lists for printing
+            // SortedDictionary<string, List<Player>> sortedDict = new SortedDictionary<string, List<Player>>();
+            //foreach(string teamId in keyList)
+            // {
+            //     sortedDict.Add(teamId, orderedList[teamId]);
+            // }
+
+            //Take the sorted teams which are broken into a dictionary, and put into a list
+            //List<Player> finalList = new List<Player>();
+            //foreach(List<Player> sortedSubList in sortedDict.Values)
+            //{
+            //    foreach (Player player in sortedSubList)
+            //    {
+            //        finalList.Add(player);
+            //    }
+            //}
+
+            string totalId = "";
+            foreach(string teamId in keyList)
+            {
+                totalId += teamId;
+            }
+       
+            //create a 1 entry dictionary with the final ordered list with the total team id as the key
+            //Dictionary<string, List<Player>> finalDict = new Dictionary<string, List<Player>>();
+            //finalDict.Add(,finalList);
+
+            return totalId;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
         }
         public List<Player> orderList(List<Player> playerList)
         {
@@ -134,7 +193,15 @@ namespace csDrafter
                         //Drafting is complete 
                         if (FinalTeam.Count == Players.Count)
                         {
-                            PrintTeams();
+                            String teamId = (GetTotalTeamId(FinalTeam));
+                            if (!TeamIds.Contains(teamId))
+                            {
+                                completeTeams++;
+                                TeamIds.Add(teamId);
+                                PrintTeams();
+                            } 
+                            
+
                         }
 
                         //Keep back tracking to get all possible combinations draft next
@@ -294,11 +361,14 @@ namespace csDrafter
         public int skill { get; set; }
         public string name { get; set; }
 
-        public Player(string anyName, int anySkill)
+        public string id { get; set; }
+
+        public Player(string anyName, int anySkill, string anyId)
             {
             this.name = anyName;
             this.skill = anySkill;
             this.isDrafted = false;
+            this.id = anyId;
             }
     }
 }
