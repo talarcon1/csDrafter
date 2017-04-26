@@ -11,22 +11,21 @@ namespace csDrafter
         static void Main(string[] args)
         {
             List<Player> p = TestTeam();
-            Drafter d = new Drafter(p, 4);
-            //test ordering the list to remove dups
+            Drafter d = new Drafter(p,4);
+            d.sentinel =200;
 
 
-            bool proceed = true;
-            while (proceed)
+
+            while (d.completeTeams < d.sentinel)
             {
                 d.Draft(0);
                 d.ResetDraftedPlayers();
                 d.FinalTeam = new List<Player>();
                 d.deviation++;
-                if(d.completeTeams > 20)
-                {
-                    proceed = false;
-                }
+    
             }
+            Console.WriteLine("done");
+            Console.ReadLine();
         }
         static List<Player> TestTeam()
         {
@@ -34,19 +33,22 @@ namespace csDrafter
             TestTeam.Add(new Player("Ric", 67, "a"));
             TestTeam.Add(new Player("Tico", 72, "b"));
             TestTeam.Add(new Player("Jr", 74, "c"));
-            TestTeam.Add(new Player("Fur", 77,"d"));
-            TestTeam.Add(new Player("Jamie", 86,"e"));
-            TestTeam.Add(new Player("Danny", 76,"f"));
-            TestTeam.Add(new Player("Gab", 79,"g"));
-            TestTeam.Add(new Player("X", 86,"h"));
-            TestTeam.Add(new Player("Tim", 87,"i"));
-            TestTeam.Add(new Player("Josh", 88,"j"));
-            TestTeam.Add(new Player("Sam", 91,"k"));
-            TestTeam.Add(new Player("Zues", 84,"l"));
-            //TestTeam.Add(new Player("Tim", 88));
-            //TestTeam.Add(new Player("Josh", 88));
-            //TestTeam.Add(new Player("Sam", 88));
-            //TestTeam.Add(new Player("Zues", 88));
+            TestTeam.Add(new Player("Fur", 77, "d"));
+            TestTeam.Add(new Player("Jamie", 86, "e"));
+            TestTeam.Add(new Player("Danny", 76, "f"));
+            TestTeam.Add(new Player("Gab", 79, "g"));
+            TestTeam.Add(new Player("X", 86, "h"));
+            TestTeam.Add(new Player("Tim", 87, "i"));
+            TestTeam.Add(new Player("Josh", 88, "j"));
+            TestTeam.Add(new Player("Sam", 91, "k"));
+            TestTeam.Add(new Player("Zues", 84, "l"));
+
+
+            //TestTeam.Add(new Player("Tim", 1,"a"));
+            //TestTeam.Add(new Player("Josh",1,"b"));
+            //TestTeam.Add(new Player("Sam", 2,"c"));
+            //TestTeam.Add(new Player("Zues", 2,"d"));
+            // TestTeam.Add(new Player("Danny", 9, "f"));
             return TestTeam;
         }
     }
@@ -65,6 +67,7 @@ namespace csDrafter
         public int completeTeams { get; set; }
 
         public List<String> TeamIds { get; set; }
+        public int sentinel { get; set; }
         #endregion
         public Drafter(List<Player> playerList, int anyNumTeams)
         {
@@ -76,6 +79,7 @@ namespace csDrafter
             FinalTeam = new List<Player>();
             completeTeams = 0;
             TeamIds = new List<String>();
+            sentinel = 0;
         }
 
         #region Public Methods
@@ -193,12 +197,17 @@ namespace csDrafter
                         //Drafting is complete 
                         if (FinalTeam.Count == Players.Count)
                         {
+                            if (completeTeams >= sentinel)
+                            {
+                                return;
+                            }
                             String teamId = (GetTotalTeamId(FinalTeam));
                             if (!TeamIds.Contains(teamId))
                             {
                                 completeTeams++;
                                 TeamIds.Add(teamId);
                                 PrintTeams();
+                              
                             } 
                             
 
@@ -284,7 +293,6 @@ namespace csDrafter
 
         public void PrintTeams()
         {
-            completeTeams++;
             int teamCount = 1;
             for (int i = 0; i < FinalTeam.Count; i++)
             {
@@ -298,12 +306,13 @@ namespace csDrafter
                 }
                 Console.WriteLine(FinalTeam[i].name);
             }
+            Console.WriteLine();
             Console.WriteLine("Team Set: " + completeTeams);
             //Console.WriteLine()
-            //Console.WriteLine("Fairness: " & GetFairness(FinalTeam, PlayersPerTeam) & "%")
-            //bPrintedTeams = True
+            Console.WriteLine("Fairness: " + GetFairness() + "%");
+           //bPrintedTeams = True
         }
-        public decimal GetFairness()
+        public String GetFairness()
         {
            decimal GetFairness = 100;
            List<int> allTeamsSkills = new List<int>();
@@ -320,9 +329,9 @@ namespace csDrafter
             }
             foreach (int skillTotal in allTeamsSkills)
             {
-                GetFairness -= Math.Abs(1 - (skillTotal / averageRank));
+                GetFairness -= (Math.Abs(1 - (decimal)skillTotal / averageRank)) * 100;
             } 
-            return GetFairness;
+            return GetFairness.ToString("#.##");
         }
         public int TeamSkill(int i)
         {
