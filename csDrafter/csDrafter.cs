@@ -12,7 +12,7 @@ namespace csDrafter
         {
             List<Player> p = TestTeam();
             Drafter d = new Drafter(p,4);
-            d.sentinel = 200;
+            d.sentinel = 100;
 
 
             int percent = 20;
@@ -24,20 +24,25 @@ namespace csDrafter
                deviation = 1;
             }
 
+            d.maxDeviation = deviation;
 
 
-            while (d.completeTeams < d.sentinel)
+            d.deviation = 0;// deviation;
+            while (d.completeTeams < d.sentinel && d.deviation <= d.maxDeviation)
             {
-              
                 d.Draft(0);
                 d.deviation++;
-                //d.CompletedSets = d.CompletedSets.OrderByDescending(x => x.Value.totalFairness).ToDictionary(i => i.Key, i => i.Value);
-           
-
-            d.ResetDraftedPlayers();
-                d.FinalTeam = new List<Player>();
-                //d.deviation += deviation;
             }
+            //because we start with deviation 0 and increase, 
+            d.CompletedSets = d.CompletedSets.OrderByDescending(x => x.totalFairness).ToList<TeamSet>();
+            d.finalPrint(d.CompletedSets);
+
+
+
+            //d.ResetDraftedPlayers();
+            //    d.FinalTeam = new List<Player>();
+            //d.deviation += deviation;
+            //}
             Console.WriteLine("done");
             Console.ReadLine();
         }
@@ -70,6 +75,8 @@ namespace csDrafter
             //TestTeam.Add(new Player("Josh", 6, "j"));
             //TestTeam.Add(new Player("Sam", 8, "k"));
             //TestTeam.Add(new Player("Zues", 10, "l"));
+
+
             return TestTeam;
         }
     }
@@ -80,6 +87,7 @@ namespace csDrafter
         public List<TeamSet> CompletedSets { get; set; }
         //public Dictionary<string,TeamSet> CompletedSets { get; set; }
         public int deviation { get; set; }
+        public int maxDeviation { get; set; }
         public int numPlayers { get; set; }
         public int numTeams { get; set; }
         public int averageRank { get; set; }
@@ -286,24 +294,26 @@ namespace csDrafter
                         //Drafting is complete 
                         if (FinalTeam.Count == Players.Count)
                         {
-                            if (completeTeams >= sentinel)
+                            if (completeTeams >= sentinel || deviation > maxDeviation )
                             {
                                 return;
                             }
                             String teamId = GetTotalTeamId(FinalTeam);
                             if (!TeamIds.Contains(teamId))
                             {
-                                TeamSet finalSet = new TeamSet(FinalTeam, playersPerTeam, averageRank, "");
+                                //TeamSet finalSet =  new TeamSet(FinalTeam, playersPerTeam, averageRank, teamId);
                                 //String teamId = GetTotalTeamId(finalSet.TeamList);
-                                finalSet.teamId = teamId;
+                                //finalSet.teamId = teamId;
 
                                 try
                                 {
+                                    TeamIds.Add(teamId);
+                                    //@TA NOTE using a dictionary slows the process exponentially
                                     //team id is key, this will not allow duplicates
-                                    CompletedSets.Add(finalSet);
+                                    CompletedSets.Add(new TeamSet(FinalTeam, playersPerTeam, averageRank, teamId));
                                     //CompletedSets.Add(teamId, finalSet);
                                     completeTeams++;
-                                    PrintTeams();
+                                   // PrintTeams();
                                 }
                                 catch (Exception ex)
                                 {
@@ -395,7 +405,35 @@ namespace csDrafter
             }
             return lowestAvail;
         }
-
+        public void finalPrint(List<TeamSet> teamList)
+        {
+            TeamSet teamSet = null;
+            for (int h = 0; h < teamList.Count || h > sentinel; h++)
+            {
+                teamSet = teamList[h];
+                for (int i = 0; i < teamSet.TeamList.Count; i++)
+                {
+                    Console.WriteLine("--------------------");
+                    Console.WriteLine("  TEAM " + (i + 1) + " " + teamSet.TeamList[i].odds);
+                    Console.WriteLine("--------------------");
+                    for (int j = 0; j < teamSet.TeamList[i].PlayerList.Count; j++)
+                    {
+                        Console.WriteLine(teamSet.TeamList[i].PlayerList[j].name); //+ " " + teamSet.TeamList[i].PlayerList[j].skill);
+                    }
+                    //Console.WriteLine();
+                    //Console.WriteLine("Odds: " + teamSet.TeamList[i].odds);
+                    Console.WriteLine(teamSet.TeamList[i].totalSkill);
+                    Console.WriteLine();
+                   
+                }
+                Console.WriteLine("Team Set: " + (h + 1));
+                Console.WriteLine("Fairness: " + teamSet.totalFairness.ToString("#.00") + "%");
+                Console.WriteLine();
+                Console.WriteLine(".....................................");
+                Console.WriteLine();
+            }
+            
+        }
         public void PrintTeams()
         {
             int teamCount = 1;
@@ -587,9 +625,10 @@ namespace csDrafter
                         x++;
                     }
                     x--;
-                    finalList.Add(new Team(team, averageRank));
+                   
+                   team = team.OrderByDescending(y => y.skill).ToList<Player>();
+                   finalList.Add(new Team(team, averageRank));
                 }
-                
             }
             catch (Exception ex)
             {
@@ -633,6 +672,8 @@ namespace csDrafter
             //Total percent of fairness
             foreach (Team team in teams)
             {
+                decimal test = (decimal)team.totalSkill / averageRank;
+                test = 1 - test;
                 GetFairness -= (Math.Abs(1 - (decimal)team.totalSkill / averageRank)) * 100;
             }
             return GetFairness;
