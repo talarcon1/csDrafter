@@ -11,28 +11,38 @@ namespace csDrafter
         static void Main(string[] args)
         {
             List<Player> p = TestTeam();
-            Drafter d = new Drafter(p,4);
+            Drafter d = new Drafter(p,2);
+
+
             d.sentinel = 100;
 
 
-            int percent = 20;
+            int percent = 50;
             
-        
+            
             int deviation = d.averageRank * percent / 100;
-            if (deviation <= 0)
+            if (deviation == 0)
             {
                deviation = 1;
+            }else if(deviation < 0)
+            {
+                deviation = int.MaxValue - d.averageRank -1;
             }
 
             d.maxDeviation = deviation;
 
 
-            d.deviation = 0;// deviation;
-            while (d.completeTeams < d.sentinel && d.deviation <= d.maxDeviation)
-            {
-                d.Draft(0);
-                d.deviation++;
-            }
+            //d.deviation = 0;// deviation;
+            ////@TA TODO what find the max amount of teams
+            //while (d.completeTeams < d.sentinel && d.deviation <= d.maxDeviation)
+            //{
+            //    d.Draft(0);
+            //    d.deviation++;
+            //}
+
+            d.deviation =  deviation; 
+            d.Draft(0);
+
             //because we start with deviation 0 and increase, 
             d.CompletedSets = d.CompletedSets.OrderByDescending(x => x.totalFairness).ToList<TeamSet>();
             d.finalPrint(d.CompletedSets);
@@ -49,26 +59,26 @@ namespace csDrafter
         static List<Player> TestTeam()
         {
             List<Player> TestTeam = new List<Player>();
-            TestTeam.Add(new Player("Ric", 67, "a"));
-            TestTeam.Add(new Player("Tico", 72, "b"));
-            TestTeam.Add(new Player("Jr", 74, "c"));
-            TestTeam.Add(new Player("Fur", 77, "d"));
-            TestTeam.Add(new Player("Jamie", 86, "e"));
-            TestTeam.Add(new Player("Danny", 76, "f"));
-            TestTeam.Add(new Player("Gab", 79, "g"));
-            TestTeam.Add(new Player("X", 86, "h"));
-            TestTeam.Add(new Player("Tim", 87, "i"));
-            TestTeam.Add(new Player("Josh", 88, "j"));
-            TestTeam.Add(new Player("Sam", 91, "k"));
-            TestTeam.Add(new Player("Zues", 84, "l"));
+            //TestTeam.Add(new Player("Ric", 67, "a"));
+            //TestTeam.Add(new Player("Tico", 72, "b"));
+            //TestTeam.Add(new Player("Jr", 74, "c"));
+            //TestTeam.Add(new Player("Fur", 77, "d"));
+            //TestTeam.Add(new Player("Jamie", 86, "e"));
+            //TestTeam.Add(new Player("Danny", 76, "f"));
+            //TestTeam.Add(new Player("Gab", 79, "g"));
+            //TestTeam.Add(new Player("X", 86, "h"));
+            //TestTeam.Add(new Player("Tim", 87, "i"));
+            //TestTeam.Add(new Player("Josh", 88, "j"));
+            //TestTeam.Add(new Player("Sam", 91, "k"));
+            //TestTeam.Add(new Player("Zues", 84, "l"));
 
 
-            //TestTeam.Add(new Player("Ric", 1, "a"));
-            //TestTeam.Add(new Player("Tico", 1, "b"));
-            //TestTeam.Add(new Player("Jr", 2, "c"));
-            //TestTeam.Add(new Player("Fur", 2, "d"));
-            //TestTeam.Add(new Player("Jamie", 4, "e"));
-            //TestTeam.Add(new Player("Danny", 9, "f"));
+            TestTeam.Add(new Player("Ric", 1, "a"));
+            TestTeam.Add(new Player("Tico", 1, "b"));
+            TestTeam.Add(new Player("Jr", 1, "c"));
+            TestTeam.Add(new Player("Fur", 3, "d"));
+            TestTeam.Add(new Player("Jamie", 3, "e"));
+            TestTeam.Add(new Player("Danny", 3, "f"));
             //TestTeam.Add(new Player("Gab", 7, "g"));
             //TestTeam.Add(new Player("X", 5, "h"));
             //TestTeam.Add(new Player("Tim", 11, "i"));
@@ -361,7 +371,7 @@ namespace csDrafter
                         }
                         else
                         {
-                            promising = teamSkill <= (averageRank - deviation);
+                            promising = teamSkill <= (averageRank + deviation) ;
                         }
                     }
                 //}
@@ -422,7 +432,6 @@ namespace csDrafter
                     }
                     //Console.WriteLine();
                     //Console.WriteLine("Odds: " + teamSet.TeamList[i].odds);
-                    Console.WriteLine(teamSet.TeamList[i].totalSkill);
                     Console.WriteLine();
                    
                 }
@@ -649,6 +658,7 @@ namespace csDrafter
         }
         public String GetOdds(int skillTotal, int averageRank)
         {
+            //@TA TODO odd calculator should be team/team not team/average
             decimal odds;
 
             odds = (decimal)skillTotal / averageRank;
@@ -659,7 +669,7 @@ namespace csDrafter
             }
             else
             {
-                odds = 100 + (1 - odds);
+                odds = 100 + ((1 - odds) * 100);
                 return odds.ToString("+###.00");
 
             }
