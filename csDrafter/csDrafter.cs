@@ -610,9 +610,6 @@ namespace csDrafter
             SetTeamOdds(this.TeamList);
             this.totalFairness = GetFairness(this.TeamList);
 
-
-
-
         }
 
         public List<Team> CreateTeamList(List<Player> finalTeam)
